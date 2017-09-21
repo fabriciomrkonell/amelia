@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta charset="UTF-8">
+  <title>Amélia</title>
+  <style type="text/css">
+    .content {
+      text-align: center;
+      font-size: 5em;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+    }
+  </style>
+</head>
+<body ng-app="app" ng-controller="controller as vm">
+  <div class="content">{{vm.age}}</div>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.5/angular.min.js"></script>
+  <script type="text/javascript">
+    (function(){
+
+      'use strict';
+
+      angular.module('app', []);
+
+      // Constants
+
+      angular.module('app')
+        .constant('__authorization', 'MTJiMmZkMGVmNWQyYjJiZWQzNzhmZjQxYjE2MmJmZDJjMWI5ZjJmZg==')
+        .constant('__url', 'https://api.simples.vet/portal/v1/animais?order=nome_ani&sort=asc');
+
+      // Services
+      angular.module('app').factory('checkAge', checkAge);
+
+      checkAge.$inject = ['$http', '__authorization', '__url'];
+
+      function checkAge($http, __authorization, __url) {
+        return {
+          getAge: getAge
+        };
+
+        function getAge() {
+
+          return $http.get(__url, {
+            headers: {
+              'Authorization': __authorization
+            }
+          }).then(getAgeComplete).catch(getAgeFailed);
+
+          function getAgeComplete(response) {
+            return response.data.dados[0].idadeaproximada_ani;
+          }
+
+          function getAgeFailed(error) {
+            console.error('XHR Failed for getAge: ' + error.data);
+          }
+        }
+      }
+
+      // Controllers
+      angular.module('app').controller('controller', controller);
+
+      controller.$inject = ['checkAge'];
+
+      function controller(checkAge) {
+        var vm = this;
+        vm.age = '...';
+
+        checkAge.getAge().then(function(age) {
+          vm.age = age;
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>
